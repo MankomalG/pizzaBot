@@ -2,7 +2,7 @@
 
 A chat-based pizza ordering prototype. Instead of filling in a form, the customer talks to a bot that asks for the size, crust, toppings and delivery address one step at a time.
 
-**Live demo:** https://komal2106.github.io/PizzaPalBot/
+**Live demo:** https://mankomalg.github.io/pizzaBot/
 
 Built for **BTH745 – Human-Computer Interaction** (Seneca Polytechnic) as the *conversational interface* prototype in a study of five different ways to order the same pizza.
 
@@ -85,7 +85,7 @@ js/app.js         Chat flow, topping pricing, order summary, error handling, usa
 
 ## Running a usability test
 
-Participants open the normal address. The tester opens the same site in another tab of the **same browser** with `?tester` on the end, for example `https://komal2106.github.io/PizzaPalBot/?tester`.
+Participants open the normal address. The tester opens the same site in another tab of the **same browser** with `?tester` on the end, for example `https://mankomalg.github.io/pizzaBot/?tester`.
 
 1. Give the participant the plain address (no `?tester`) and the task, for example: *order a large pizza with three toppings for delivery to 25 Main St N.*
 2. They complete the order. The bot saves one row when the order is placed. If they cancel, restart or leave the page before that, the row is saved as not completed.
