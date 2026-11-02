@@ -25,6 +25,7 @@ The prototype is built to be tested with real users. It is not a real ordering s
 - **Guided order flow:** size, crust, toppings, name, delivery address, then an order summary to confirm or modify.
 - **Quick-reply buttons or typing:** size and crust can be tapped or typed ("large", "thin and crispy"). Anything the bot can't understand gets a clear error and the question is asked again.
 - **Address checking:** the bot accepts only delivery addresses it knows. Anything else gets *"Sorry, that's not a valid address in our Brampton delivery area"* and the question is asked again. Typos get a "Did you mean…?" suggestion, and the city and postal code are filled in automatically once the address is found.
+- **Address picker:** under the address question the bot lists the 50 valid test addresses as tappable buttons, so participants don't need to be told which ones work. They can still type their own. Set `SHOW_ADDRESS_PICKER` to `false` at the top of `js/app.js` to hide the list.
 - **Topping pricing:** the first 3 toppings are included. Each extra topping costs more, and premium toppings (marked ★) cost double. The extra charge updates live and appears in the summary.
 - **Modify before confirming:** change the size, crust, toppings or address without starting over.
 - **Built-in usability logging:** every run is recorded automatically (completion, time, errors, steps visited). Participants never see this. Add `?tester` to the address to open the tester tools: results table, spreadsheet copy, CSV download, the list of valid addresses and a Restart button.

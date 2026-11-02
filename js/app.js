@@ -28,6 +28,7 @@
   var INCLUDED_TOPPINGS = 3;   // first 3 toppings are part of the base price
   var EXTRA_STANDARD = 0.30;   // each topping after the first 3
   var EXTRA_PREMIUM = 0.60;    // each premium topping after the first 3
+  var SHOW_ADDRESS_PICKER = true;  // list the valid test addresses under the address question (set false to hide)
 
 
   // ---------------------------------------------------------------------------
@@ -312,7 +313,7 @@
   }
 
   function clearTrailingInteractives() {
-    var stale = log.querySelectorAll(".quickReplies, .toppingPanel");
+    var stale = log.querySelectorAll(".quickReplies, .toppingPanel, .addressPanel");
     stale.forEach(function (el) { el.remove(); });
   }
 
@@ -518,6 +519,35 @@
     scrollToEnd();
   }
 
+  // Lists the valid test addresses under the address question. Tapping one sends it like typed text.
+  function showAddressPicker() {
+    if (!SHOW_ADDRESS_PICKER) return;
+    var panel = document.createElement("div");
+    panel.className = "addressPanel";
+
+    var title = document.createElement("div");
+    title.className = "counterLine";
+    title.textContent = "Test addresses: tap one, or type your own.";
+    panel.appendChild(title);
+
+    var grid = document.createElement("div");
+    grid.className = "addressGrid";
+    AddressBackend.all().forEach(function (rec) {
+      var chip = document.createElement("button");
+      chip.type = "button";
+      chip.className = "chip";
+      chip.textContent = rec.street;
+      chip.addEventListener("click", function () {
+        addUserMessage(rec.street);   // also removes this panel
+        handleStreetInput(rec.street);
+      });
+      grid.appendChild(chip);
+    });
+    panel.appendChild(grid);
+    log.appendChild(panel);
+    scrollToEnd();
+  }
+
   // --- Flow steps ---
   function startFlow() {
     finishSession(false);   // a run that was left unfinished counts as not completed
@@ -564,6 +594,7 @@
   function goToStreet() {
     botSay("Thanks, " + state.name + "! What's your delivery street address? (House number and street name.)", function () {
       enter("street");
+      showAddressPicker();
     });
   }
 
@@ -605,6 +636,7 @@
     var hint = state.badAddressAttempts >= 2 ? " For example: " + AddressBackend.sample().street + "." : "";
     botSay("Please enter your street address again (house number and street name)." + hint, function () {
       enter("street");
+      showAddressPicker();
     });
   }
 
