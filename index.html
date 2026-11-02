@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PizzaPal Bot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700&family=Figtree:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="badge">
+      <svg viewBox="0 0 24 24" fill="none"><path d="M3 10L12 4l9 6-1.3 1.6L12 7 4.3 11.6 3 10Z" fill="currentColor"/><path d="M5 12l7 4 7-4-1 7.5a1 1 0 0 1-.6.8L12 22l-5.4-1.7a1 1 0 0 1-.6-.8L5 12Z" fill="currentColor" opacity="0.85"/><circle cx="10.3" cy="15" r="0.9" fill="var(--bg)"/><circle cx="13.8" cy="16.6" r="0.9" fill="var(--bg)"/><circle cx="12" cy="13.2" r="0.7" fill="var(--bg)"/></svg>
+    </div>
+    <div class="headerText">
+      <h1>PizzaPal Bot</h1>
+      <div class="status">Online &mdash; usually replies instantly</div>
+    </div>
+    <button class="restartBtn" id="testerBtn" hidden title="Tester tools: results and valid addresses" aria-expanded="false" aria-controls="testPanel">Tester</button>
+    <button class="restartBtn" id="restartBtn" hidden title="Start a new run for the next participant">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.36"/><path d="M21 4v5h-5"/></svg>
+      Restart
+    </button>
+  </header>
+
+  <section id="testPanel" hidden aria-label="Tester tools">
+    <div class="tabs" role="tablist">
+      <button type="button" class="tab active" id="tabResults" role="tab" aria-selected="true" aria-controls="paneResults">Results</button>
+      <button type="button" class="tab" id="tabAddresses" role="tab" aria-selected="false" aria-controls="paneAddresses">Valid addresses</button>
+    </div>
+
+    <div id="paneResults" role="tabpanel" aria-labelledby="tabResults">
+      <p>One row per participant, saved automatically when they place the order (or when they cancel, restart or leave the page). Naturalness and notes are yours to fill in.</p>
+      <div id="testStats"></div>
+      <p id="storageWarn" class="warn" hidden>This browser is blocking storage, so results only last until this tab is closed. Copy them before closing.</p>
+      <div class="tableWrap">
+        <table id="resultsTable">
+          <thead>
+            <tr>
+              <th scope="col" title="Participant number">#</th>
+              <th scope="col" title="Task completed (1 = yes, 0 = no)">Done</th>
+              <th scope="col" title="Time in seconds, 300 if not completed">Time</th>
+              <th scope="col" title="Red error messages, up to 10">Errors</th>
+              <th scope="col" title="Total steps visited, including repeats">S</th>
+              <th scope="col" title="Different steps visited">N</th>
+              <th scope="col" title="Fewest steps needed to finish">R</th>
+              <th scope="col" title="Lostness">Lost</th>
+              <th scope="col" title="Perceived naturalness, 1 to 5">Nat.</th>
+              <th scope="col">Notes</th>
+              <th scope="col"><span class="srOnly">Delete</span></th>
+            </tr>
+          </thead>
+          <tbody id="resultsBody"></tbody>
+        </table>
+      </div>
+      <p id="emptyMsg">No runs saved yet.</p>
+      <div class="actions">
+        <button type="button" class="actionBtn primary" id="copyBtn">Copy for spreadsheet</button>
+        <button type="button" class="actionBtn" id="csvBtn">Download CSV</button>
+        <button type="button" class="actionBtn danger" id="clearBtn">Clear results</button>
+      </div>
+      <div id="exportMsg" role="status"></div>
+      <textarea id="copyBox" hidden readonly rows="4" aria-label="Results to copy"></textarea>
+    </div>
+
+    <div id="paneAddresses" role="tabpanel" aria-labelledby="tabAddresses" hidden>
+      <p>The bot only accepts these 50 fictional Brampton addresses. Tap one to put it in the message box.</p>
+      <ul id="addressList"></ul>
+    </div>
+  </section>
+
+  <div id="log" aria-live="polite"></div>
+
+  <form id="composer" autocomplete="off">
+    <input id="textInput" type="text" placeholder="Message PizzaPal…" maxlength="120" />
+    <button id="sendBtn" type="button" aria-label="Send">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 11.5 21 3l-7 18-3.5-7.5L3 11.5Z"/></svg>
+    </button>
+  </form>
+</div>
+
+<script src="js/addresses.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
