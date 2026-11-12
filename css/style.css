@@ -462,3 +462,44 @@ body { margin: 0; font-size: 14px; }
 @media (max-width: 360px) {
   .badge { display: none; }
 }
+
+.cardPanel {
+    margin-left: 2.1rem;
+    margin-top: 0.1rem;
+    width: calc(100% - 3.1rem);
+    max-width: 22rem;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 0.9rem;
+    padding: 0.8rem 0.9rem;
+  }
+  .cardPanel label { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.74rem; font-weight: 600; color: var(--muted); }
+  .cardPanel input {
+    font-family: var(--font-body);
+    font-size: 16px;               /* 16px stops iOS zooming in on focus */
+    padding: 0.5rem 0.65rem;
+    border: 1px solid var(--border);
+    border-radius: 0.6rem;
+    background: var(--bg);
+    color: var(--fg);
+    min-width: 0;
+  }
+  .cardPanel input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .cardRow { display: flex; gap: 0.6rem; }
+  .cardRow label { flex: 1; min-width: 0; }
+  .cardActions { display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; }
+  .linkBtn {
+    border: none;
+    background: none;
+    padding: 0;
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size: 0.76rem;
+    font-weight: 600;
+    text-decoration: underline;
+    cursor: pointer;
+  }

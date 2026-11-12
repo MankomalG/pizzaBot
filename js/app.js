@@ -42,10 +42,10 @@
   // ---------------------------------------------------------------------------
   var TESTER = /[?&]tester(=|&|$)/.test(window.location.search);
   var STORE_KEY = "pizzapal.results.v1";
-  var REQUIRED_STEPS = 7;   // size, crust, toppings, name, street, apartment, summary
+  var REQUIRED_STEPS = 8;   // size, crust, toppings, name, street, apartment, summary, payment
   var TIME_CAP = 300;       // seconds
   var ERROR_CAP = 10;
-  var COUNTED_STEPS = ["size", "crust", "toppings", "name", "street", "street-confirm", "apt", "confirm"];
+  var COUNTED_STEPS = ["size", "crust", "toppings", "name", "street", "street-confirm", "apt", "confirm", "pay"];
 
   var session = null;
   var memStore = [];        // used only if the browser blocks localStorage
@@ -698,7 +698,7 @@
         [{ id: "confirm", label: "Confirm ✓" }, { id: "modify", label: "Modify Order" }],
         function (opt) {
           if (opt.id === "confirm") {
-            placeOrder();
+            goToPayment();
           } else {
             offerModifyOptions();
           }
@@ -754,7 +754,140 @@
     });
   }
 
-  function placeOrder() {
+  // --- Payment (mock). Nothing is charged, sent or stored. Only the card format is checked. ---
+  var DECLINE_TEST_CARD = "4000000000000002";   // always "declined", to test error recovery
+
+  function luhnOk(digits) {
+    var sum = 0, dbl = false;
+    for (var i = digits.length - 1; i >= 0; i--) {
+      var d = parseInt(digits.charAt(i), 10);
+      if (dbl) { d *= 2; if (d > 9) d -= 9; }
+      sum += d;
+      dbl = !dbl;
+    }
+    return sum % 10 === 0;
+  }
+
+  // Returns an error message, or "" if the card details look fine.
+  function cardProblem(numberText, expiryText, cvvText) {
+    var digits = numberText.replace(/\D/g, "");
+    if (digits.length !== 16) return "That card number should have 16 digits.";
+    if (!luhnOk(digits)) return "That card number isn't valid. Please check it and try again.";
+    var m = /^(\d{2})\s*\/\s*(\d{2})$/.exec(expiryText.trim());
+    if (!m || +m[1] < 1 || +m[1] > 12) return "Please enter the expiry date as MM/YY, for example 12/30.";
+    var d = new Date();
+    var expiredYear = 2000 + (+m[2]) < d.getFullYear();
+    var expiredMonth = 2000 + (+m[2]) === d.getFullYear() && (+m[1]) < d.getMonth() + 1;
+    if (expiredYear || expiredMonth) return "That card has expired. Please use a card that hasn't.";
+    if (!/^\d{3}$/.test(cvvText.trim())) return "The security code (CVV) is 3 digits.";
+    if (digits === DECLINE_TEST_CARD) return "Your card was declined. Please try another card or choose Pay on delivery.";
+    return "";
+  }
+
+  function askPaymentMethod(text) {
+    botSay(text, function () {
+      enter("pay");
+      addQuickReplies(
+        [{ id: "card", label: "Pay by card" }, { id: "cash", label: "Pay on delivery" }],
+        function (opt) {
+          if (opt.id === "card") {
+            botSay("Enter your card details below. This is a test checkout, so please use the test card shown.", showCardForm);
+          } else {
+            botSay("No problem, you'll pay when your pizza arrives.", function () {
+              placeOrder("Pay on delivery");
+            });
+          }
+        }
+      );
+    });
+  }
+
+  function goToPayment() {
+    askPaymentMethod("Almost done! How would you like to pay? Your total is " + fmtMoney(orderTotal()) + ".");
+  }
+
+  function showCardForm() {
+    enter("pay-card");   // same payment screen, so it is not counted again
+    var panel = document.createElement("div");
+    panel.className = "cardPanel";
+
+    var note = document.createElement("div");
+    note.className = "counterLine";
+    note.textContent = "Test payment only. Use card 4242 4242 4242 4242, any future expiry and any 3-digit code. Please don't enter a real card.";
+    panel.appendChild(note);
+
+    function field(label, attrs) {
+      var wrap = document.createElement("label");
+      wrap.textContent = label;
+      var inp = document.createElement("input");
+      inp.type = "text";
+      inp.autocomplete = "off";
+      Object.keys(attrs).forEach(function (k) { inp.setAttribute(k, attrs[k]); });
+      wrap.appendChild(inp);
+      return { wrap: wrap, input: inp };
+    }
+    var num = field("Card number", { inputmode: "numeric", maxlength: "19", placeholder: "4242 4242 4242 4242" });
+    var exp = field("Expiry (MM/YY)", { inputmode: "numeric", maxlength: "5", placeholder: "MM/YY" });
+    var cvv = field("CVV", { inputmode: "numeric", maxlength: "3", placeholder: "123" });
+    panel.appendChild(num.wrap);
+    var row = document.createElement("div");
+    row.className = "cardRow";
+    row.appendChild(exp.wrap);
+    row.appendChild(cvv.wrap);
+    panel.appendChild(row);
+
+    num.input.addEventListener("input", function () {
+      var d = num.input.value.replace(/\D/g, "").slice(0, 16);
+      num.input.value = d.replace(/(.{4})/g, "$1 ").trim();
+    });
+    exp.input.addEventListener("input", function () {
+      var d = exp.input.value.replace(/\D/g, "").slice(0, 4);
+      exp.input.value = d.length > 2 ? d.slice(0, 2) + "/" + d.slice(2) : d;
+    });
+    cvv.input.addEventListener("input", function () {
+      cvv.input.value = cvv.input.value.replace(/\D/g, "").slice(0, 3);
+    });
+
+    var actions = document.createElement("div");
+    actions.className = "cardActions";
+    var payBtn = document.createElement("button");
+    payBtn.type = "button";
+    payBtn.className = "doneBtn";
+    payBtn.textContent = "Pay " + fmtMoney(orderTotal());
+    var changeBtn = document.createElement("button");
+    changeBtn.type = "button";
+    changeBtn.className = "linkBtn";
+    changeBtn.textContent = "Change payment method";
+    actions.appendChild(payBtn);
+    actions.appendChild(changeBtn);
+    panel.appendChild(actions);
+
+    payBtn.addEventListener("click", function () {
+      noteActivity();
+      var problem = cardProblem(num.input.value, exp.input.value, cvv.input.value);
+      if (problem) {
+        addSystemError(problem);
+        return;
+      }
+      var last4 = num.input.value.replace(/\D/g, "").slice(-4);
+      panel.remove();
+      addUserMessage("Card ending " + last4);
+      botSay("Processing your payment…", function () {
+        placeOrder("Card ending " + last4);
+      });
+    });
+    changeBtn.addEventListener("click", function () {
+      panel.remove();
+      addUserMessage("Change payment method");
+      askPaymentMethod("Sure, how would you like to pay?");
+    });
+
+    log.appendChild(panel);
+    scrollToEnd();
+    num.input.focus();
+  }
+
+  function placeOrder(payLabel) {
     finishSession(true);
     var orderId = "PZA-" + Math.floor(10000 + Math.random() * 89999);
     var eta = (18 + Math.floor(Math.random() * 15)) + " min";
@@ -762,6 +895,7 @@
       "Thank you! 🎉 Your order has been placed.\nOrder ID: " + orderId +
       "\nEstimated time: " + eta +
       "\nTotal: " + fmtMoney(orderTotal()) +
+      "\nPayment: " + (payLabel || "Pay on delivery") +
       "\n\nSee you soon, " + state.name + "!",
       function () {
         state.step = "done";
@@ -793,6 +927,8 @@
     if (lower === "cancel") {
       addUserMessage(raw);
       finishSession(false);
+      var openCard = log.querySelector(".cardPanel");   // the card form is not cleared by addUserMessage
+      if (openCard) openCard.remove();
       botSay("Order cancelled. No charges were made. Tap below to start fresh whenever you're ready.", function () {
         addQuickReplies([{ id: "restart", label: "Start a new order" }], function () { startFlow(); });
       });
@@ -839,6 +975,16 @@
       case "toppings": {
         addUserMessage(raw);
         addSystemError("Please use the buttons above to pick your toppings, then tap “Done adding toppings.”");
+        break;
+      }
+      case "pay": {
+        addUserMessage(raw);
+        addSystemError("Please tap Pay by card or Pay on delivery.");
+        break;
+      }
+      case "pay-card": {
+        addUserMessage(raw);
+        addSystemError("Please fill in the card form above, then tap Pay.");
         break;
       }
       case "name": {

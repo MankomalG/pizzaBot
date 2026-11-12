@@ -2,7 +2,7 @@
 
 A chat-based pizza ordering prototype. Instead of filling in a form, the customer talks to a bot that asks for the size, crust, toppings and delivery address one step at a time.
 
-**Live demo:** https://mankomalg.github.io/pizzaBot/
+**Live demo:** https://komal2106.github.io/PizzaPalBot/
 
 Built for **BTH745 – Human-Computer Interaction** (Seneca Polytechnic) as the *conversational interface* prototype in a study of five different ways to order the same pizza.
 
@@ -22,11 +22,12 @@ The prototype is built to be tested with real users. It is not a real ordering s
 
 ## What it does
 
-- **Guided order flow:** size, crust, toppings, name, delivery address, then an order summary to confirm or modify.
+- **Guided order flow:** size, crust, toppings, name, delivery address, then an order summary to confirm or modify, then payment.
 - **Quick-reply buttons or typing:** size and crust can be tapped or typed ("large", "thin and crispy"). Anything the bot can't understand gets a clear error and the question is asked again.
 - **Address checking:** the bot accepts only delivery addresses it knows. Anything else gets *"Sorry, that's not a valid address in our Brampton delivery area"* and the question is asked again. Typos get a "Did you mean…?" suggestion, and the city and postal code are filled in automatically once the address is found.
 - **Address picker:** under the address question the bot lists the 50 valid test addresses as tappable buttons, so participants don't need to be told which ones work. They can still type their own. Set `SHOW_ADDRESS_PICKER` to `false` at the top of `js/app.js` to hide the list.
 - **Topping pricing:** the first 3 toppings are included. Each extra topping costs more, and premium toppings (marked ★) cost double. The extra charge updates live and appears in the summary.
+- **Mock payment:** after confirming the summary the customer chooses *Pay by card* or *Pay on delivery*. The card form checks the format only (16 digits that pass the card-number check, a valid MM/YY that hasn't expired, a 3-digit code). Use test card `4242 4242 4242 4242`, any future expiry and any 3 digits. Card `4000 0000 0000 0002` is always declined, to test error recovery. Nothing is charged, sent or stored.
 - **Modify before confirming:** change the size, crust, toppings or address without starting over.
 - **Built-in usability logging:** every run is recorded automatically (completion, time, errors, steps visited). Participants never see this. Add `?tester` to the address to open the tester tools: results table, spreadsheet copy, CSV download, the list of valid addresses and a Restart button.
 - **Responsive:** works on phones, tablets and desktop, in light and dark mode.
@@ -85,7 +86,7 @@ js/app.js         Chat flow, topping pricing, order summary, error handling, usa
 
 ## Running a usability test
 
-Participants open the normal address. The tester opens the same site in another tab of the **same browser** with `?tester` on the end, for example `https://mankomalg.github.io/pizzaBot/?tester`.
+Participants open the normal address. The tester opens the same site in another tab of the **same browser** with `?tester` on the end, for example `https://komal2106.github.io/PizzaPalBot/?tester`.
 
 1. Give the participant the plain address (no `?tester`) and the task, for example: *order a large pizza with three toppings for delivery to 25 Main St N.*
 2. They complete the order. The bot saves one row when the order is placed. If they cancel, restart or leave the page before that, the row is saved as not completed.
@@ -98,11 +99,11 @@ Participants open the normal address. The tester opens the same site in another 
 | Column | Meaning |
 |---|---|
 | Done | 1 if the order was placed, otherwise 0 |
-| Time | Seconds from the first tap or message to tapping Confirm. Capped at 300; 300 if not completed |
+| Time | Seconds from the first tap or message until the order is placed (after payment). Capped at 300; 300 if not completed |
 | Errors | Red error messages shown, capped at 10 |
 | S | Steps visited, repeats included |
 | N | Different steps visited |
-| R | Fewest steps needed to finish (7: size, crust, toppings, name, address, apartment, summary) |
+| R | Fewest steps needed to finish (8: size, crust, toppings, name, address, apartment, summary, payment) |
 | Lost | Lostness = √((N/S − 1)² + (R/N − 1)²). 0 is best |
 
 **Good to know**
@@ -114,7 +115,7 @@ Participants open the normal address. The tester opens the same site in another 
 
 ## Limitations
 
-- Prototype only. Confirming an order shows a made-up order number and delivery time. There is no payment and nothing is sent to a server. The only thing stored is the usability log, in the browser's own storage.
+- Prototype only. Confirming an order shows a made-up order number and delivery time. Payment is a mock: nothing is charged and nothing is sent to a server. The only thing stored is the usability log, in the browser's own storage.
 - Understanding is simple keyword matching, not real language understanding. Toppings and the final confirmation use buttons.
 - Only the 50 listed addresses are accepted.
 
