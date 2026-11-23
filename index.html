@@ -11,9 +11,10 @@
 </head>
 <body>
 <div id="app">
+<a class="skipLink" href="#textInput">Skip to message box</a>
   <header>
     <div class="badge">
-      <svg viewBox="0 0 24 24" fill="none"><path d="M3 10L12 4l9 6-1.3 1.6L12 7 4.3 11.6 3 10Z" fill="currentColor"/><path d="M5 12l7 4 7-4-1 7.5a1 1 0 0 1-.6.8L12 22l-5.4-1.7a1 1 0 0 1-.6-.8L5 12Z" fill="currentColor" opacity="0.85"/><circle cx="10.3" cy="15" r="0.9" fill="var(--bg)"/><circle cx="13.8" cy="16.6" r="0.9" fill="var(--bg)"/><circle cx="12" cy="13.2" r="0.7" fill="var(--bg)"/></svg>
+      <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" focusable="false"><path d="M3 10L12 4l9 6-1.3 1.6L12 7 4.3 11.6 3 10Z" fill="currentColor"/><path d="M5 12l7 4 7-4-1 7.5a1 1 0 0 1-.6.8L12 22l-5.4-1.7a1 1 0 0 1-.6-.8L5 12Z" fill="currentColor" opacity="0.85"/><circle cx="10.3" cy="15" r="0.9" fill="var(--bg)"/><circle cx="13.8" cy="16.6" r="0.9" fill="var(--bg)"/><circle cx="12" cy="13.2" r="0.7" fill="var(--bg)"/></svg>
     </div>
     <div class="headerText">
       <h1>PizzaPal Bot</h1>
@@ -35,6 +36,7 @@
     <div id="paneResults" role="tabpanel" aria-labelledby="tabResults">
       <p>One row per participant, saved automatically when they place the order (or when they cancel, restart or leave the page). Naturalness and notes are yours to fill in.</p>
       <div id="testStats"></div>
+      <div id="apiStatus" class="counterLine"></div>
       <p id="storageWarn" class="warn" hidden>This browser is blocking storage, so results only last until this tab is closed. Copy them before closing.</p>
       <div class="tableWrap">
         <table id="resultsTable">
@@ -60,7 +62,9 @@
       <div class="actions">
         <button type="button" class="actionBtn primary" id="copyBtn">Copy for spreadsheet</button>
         <button type="button" class="actionBtn" id="csvBtn">Download CSV</button>
+        <button type="button" class="actionBtn" id="jsonBtn">Download JSON (events)</button>
         <button type="button" class="actionBtn danger" id="clearBtn">Clear results</button>
+        <button type="button" class="actionBtn" id="forgetBtn">Clear saved customer</button>
       </div>
       <div id="exportMsg" role="status"></div>
       <textarea id="copyBox" hidden readonly rows="4" aria-label="Results to copy"></textarea>
@@ -72,16 +76,27 @@
     </div>
   </section>
 
-  <div id="log" aria-live="polite"></div>
+  <main id="chatMain">
+    <div id="log" role="log" aria-live="polite" aria-label="Conversation with PizzaPal Bot"></div>
+  </main>
+
+  <footer id="chatFooter">
+  <div id="quickBar" role="toolbar" aria-label="Chat shortcuts">
+    <button type="button" id="backBtn" class="barBtn">&larr; Back</button>
+    <button type="button" id="helpBtn" class="barBtn">Help</button>
+    <button type="button" id="orderBtn" class="barBtn">My order</button>
+  </div>
 
   <form id="composer" autocomplete="off">
-    <input id="textInput" type="text" placeholder="Message PizzaPal…" maxlength="120" />
+    <input id="textInput" type="text" placeholder="Message PizzaPal…" maxlength="120" aria-label="Message PizzaPal" enterkeyhint="send" />
     <button id="sendBtn" type="button" aria-label="Send">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 11.5 21 3l-7 18-3.5-7.5L3 11.5Z"/></svg>
+      <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false"><path d="M3 11.5 21 3l-7 18-3.5-7.5L3 11.5Z"/></svg>
     </button>
   </form>
+  </footer>
 </div>
 
+<script src="js/config.js"></script>
 <script src="js/addresses.js"></script>
 <script src="js/app.js"></script>
 </body>
