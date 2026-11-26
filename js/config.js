@@ -4,4 +4,4 @@
 // Leave it empty ("") to use the built-in list of 50 Brampton addresses instead.
 // After creating the key, restrict it to your site (Allowed HTTP referrers, e.g. https://YOURNAME.github.io/*)
 // so nobody can reuse it elsewhere.
-window.PIZZAPAL_CONFIG = window.PIZZAPAL_CONFIG || { geoapifyKey: "" };
+window.PIZZAPAL_CONFIG = window.PIZZAPAL_CONFIG || { geoapifyKey: "1ed1b0be386e46b8ab2dc7c077f7083e" };
